@@ -1,1 +1,1 @@
-# Planning-as-SAT-PDDL
+# Planning-as-SAT-and-PDDL
