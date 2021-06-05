@@ -1,5 +1,4 @@
-# Planning as SAT + PDDL
-#### Autore: Borghini Alessia, Relatore: Prof. Maurizio Lenzerini.
+# Planning as SAT + PDDL #### Autore: Borghini Alessia, Relatore: Prof. Maurizio Lenzerini.
 
 
 ## Introduzione
