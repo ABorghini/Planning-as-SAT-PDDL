@@ -4,7 +4,7 @@
     (:types agente pianta cella)
     
     (:predicates
-        (adj ?from ?to) (innaffiata ?p) (sana ?p)
+        (adj ?from ?to) (innaffiata ?p) (infestata ?p)
         (pianta-in ?p ?c) (at ?robot ?c)
     )
     
@@ -16,13 +16,13 @@
     
     (:action innaffia
         :parameters (?robot - agente ?c - cella ?p - pianta)
-        :precondition (and (at ?robot ?c) (pianta-in ?p ?c) (sana ?p) (not (innaffiata ?p)))
+        :precondition (and (at ?robot ?c) (pianta-in ?p ?c) (not(infestante ?p)) (not (innaffiata ?p)))
         :effect (and (innaffiata ?p))
     )
     
     (:action estirpa
         :parameters (?robot - agente ?c - cella ?p - pianta)
-        :precondition (and (at ?robot ?c) (pianta-in ?p ?c) (not (sana ?p)))
+        :precondition (and (at ?robot ?c) (pianta-in ?p ?c) (infestante ?p))
         :effect (and (not (pianta-in ?p ?c)))
     )
 )
