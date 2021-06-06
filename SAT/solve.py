@@ -1,5 +1,5 @@
 from final_state_generator import generate_final_state
-from prova import solve
+from solver import solve
 from parser_move import gen_mosse
 from parser_cnf import convert_to_dimacs
 
