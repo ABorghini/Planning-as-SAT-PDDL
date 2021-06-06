@@ -1,19 +1,9 @@
 def convert_to_dimacs():
-    with open("initial_state.txt", "r") as f:
-        file = ""
-        for line in f:
-            if line!="\n":
-                file += line  
-
-    with open("problema_tot.txt", "r") as f:
+    file = ""
+    with open("problem.txt", "r") as f:
         for line in f:
             if line!="\n":
                 file += line
-
-    with open("final_state.txt", "r") as f:
-        for line in f:
-            if line!="\n":
-                file += line  
 
     file = file.replace("(", "")
     file = file.replace(")", "")
@@ -27,7 +17,7 @@ def convert_to_dimacs():
     file = file.replace("p", "6")
     file = file.replace("r", "7")
 
-    with open("problema_tot_dimacs.txt", "w") as f:
+    with open("problem_dimacs.txt", "w") as f:
         f.write(file)
         
 

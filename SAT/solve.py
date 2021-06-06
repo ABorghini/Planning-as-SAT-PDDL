@@ -1,9 +1,14 @@
 from final_state_generator import generate_final_state
 from solver import solve
-from parser_move import gen_mosse
-from parser_cnf import convert_to_dimacs
+from moves_generator import gen_moves
+from problem_generator import problem_gen
+from convert2dimacs import convert_to_dimacs
 
 num_mosse = generate_final_state()
-gen_mosse(num_mosse)
+gen_moves(num_mosse)
+problem_gen()
 convert_to_dimacs()
 solve()
+
+
+
