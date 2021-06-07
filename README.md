@@ -12,16 +12,18 @@ Nello  specifico,  ogni casella può essere: i) vuota, ii) sana (i.e., contenent
 2. quando si trova in una cella infestata può estirpare le piante presenti.
 
 L’obiettivo dell’agente è dunque quello di trovare un percorso che gli permetta di i) estirpare tutte le piante infestanti e, ii) innaffiare tutte quelle sane.
+Per ulteriori dettagli vedere il file "Planning_as_SAT.pdf".
 
 ## SAT
-- SAT (il codice sta nella cartella X e puo essere eseguito usando il solver Y, con link al solver)
+Nella cartella SAT sono presenti i file necessari per risolvere il problema come SAT.
+Per poter eseguire il file "solve.py", che trova il piano risolutivo, è necessario installare il Solver PySAT, che è disponibile al link https://github.com/pysathq/pysat.
+Il piano risultante viene salvato nel file "report.txt".
 
 
 ## PDDL
-- PDDL (il codice sta nella cartella Z e puo essere eseguito usando l'editor online W, copiando problem e domain nei rispettivi spazi, con link al solver + spiegazione di come ottenere i grafici ;) )
-
+Gli script PDDL sono presente nella cartella PDDL. Per provare i file è sufficiente importare i file "domain.pddl" e "problem.pddl" nelle apposite sezioni del solver online al link https://web-planner.herokuapp.com/, che risolverà il problema restituendo il percorso trovato.
 
 <br><br>
 
-#### **Autore**: Borghini Alessia
+#### **Autore**: Alessia Borghini
 #### **Relatore**: Prof. Maurizio Lenzerini.

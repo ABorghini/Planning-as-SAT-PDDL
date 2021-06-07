@@ -3181,7 +3181,6 @@ p_11,(2,2) -p_12,(2,2)
 -innaffiata_12,(2,2) innaffia_11,(2,2) innaffiata_11,(2,2)
 
 innaffiata_12,(0,0)
+-p_12,(1,1)
 innaffiata_12,(2,0)
 -p_12,(2,2)
--p_12,(1,1)
-
