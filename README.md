@@ -21,7 +21,7 @@ Il piano risultante viene salvato nel file "report.txt".
 
 
 ## PDDL
-Gli script PDDL sono presente nella cartella PDDL. Per provare i file è sufficiente importare i file "domain.pddl" e "problem.pddl" nelle apposite sezioni del solver online al link https://web-planner.herokuapp.com/, che risolverà il problema restituendo il percorso trovato.
+Gli script PDDL sono presenti nella cartella PDDL. Per provare i file è sufficiente importare i file "domain.pddl" e "problem.pddl" nelle apposite sezioni del solver online al link https://web-planner.herokuapp.com/, che risolverà il problema restituendo il percorso trovato.
 
 <br><br>
 
