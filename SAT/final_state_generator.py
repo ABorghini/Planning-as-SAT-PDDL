@@ -22,6 +22,6 @@ def generate_final_state():
                 else: 
                     final_state += "-p_"+str(num_mosse+1)+","+coord+"\n"
 
-    with open("final_state.txt", "w") as f:
-        f.write(final_state)
+    """ with open("final_state.txt", "w") as f:
+        f.write(final_state) """
     return num_mosse

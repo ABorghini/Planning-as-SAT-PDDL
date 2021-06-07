@@ -1,14 +1,15 @@
 from pysat.solvers import *
 import numpy as np
-import time 
 
 def solve():
     with open("report.txt", "w") as report:
         with open("problem_dimacs.txt", "r") as f:
             l = []
+            flattened_list = []
             for line in f:
                 line= [int(x) for x in line.strip().split(" ")]
                 l.append(line)
+                flattened_list.extend(line)
 
         s = Solver(use_timer=True)
         for elem in l:
@@ -23,10 +24,6 @@ def solve():
         print(sat)
 
         if ris:
-            flattened_list = []
-            for clause in l:
-                flattened_list.extend(clause)
-
             model = s.get_model()
             modello_txt = ""
 
@@ -36,13 +33,16 @@ def solve():
                     lit = str(elem)
                     literal = ""
                     if lit[0]!= "-":
-                        literal = "-"+replace_words[lit[0]]       
+                        literal = replace_words[lit[0]]       
                         literal += "_" + lit[1:-2] + ",(" + lit[-2:-1] + "," + lit[-1:] + ")"
                     else:
-                        literal = replace_words[lit[1]]   
+                        literal = "-"+replace_words[lit[1]]   
                         literal += "_" + lit[2:-2] + ",(" + lit[-2:-1] + "," + lit[-1:] + ")"
                     modello_txt += literal+"\n"
             
-            
             report.write("MODEL:\n"+modello_txt)
-            print("Generated report file")        
+              
+        else:
+            report.write("MODEL: -\n")
+        s.delete()
+        print("Generated report file") 

@@ -8,22 +8,12 @@ azioni = ["move_to_0,(0,0)",
 "move_to_0,(1,2)",
 "move_to_0,(2,2)",
 "estirpa_0,(0,0)",
-"estirpa_0,(0,1)",
-"estirpa_0,(0,2)",
-"estirpa_0,(1,0)",
 "estirpa_0,(1,1)",
-"estirpa_0,(1,2)",
 "estirpa_0,(2,0)",
-"estirpa_0,(2,1)",
 "estirpa_0,(2,2)",
 "innaffia_0,(0,0)",
-"innaffia_0,(0,1)",
-"innaffia_0,(0,2)",
-"innaffia_0,(1,0)",
 "innaffia_0,(1,1)",
-"innaffia_0,(1,2)",
 "innaffia_0,(2,0)",
-"innaffia_0,(2,1)",
 "innaffia_0,(2,2)"]
 
 combinazioni = ""
@@ -32,7 +22,11 @@ for i in range(len(azioni)):
     while j<len(azioni):
         combinazioni += "-"+azioni[i] +" -"+azioni[j] +"\n"
         j += 1
+print(combinazioni)
 
+combinazioni = ""
+for i in range(len(azioni)):
+    combinazioni += azioni[i]+" "
 estirpa = ""
 e = ""
 for i in range(3):
@@ -56,7 +50,7 @@ for i in range(3):
         innaffia += inn + "-innaffiata_0,("+str(i)+","+str(j)+")\n"
         innaffia += inn + "innaffiata_1,("+str(i)+","+str(j)+")\n"
         innaffia += inn + "r_1,("+str(i)+","+str(j)+")\n"
-
+        innaffia += inn + "p_1,("+str(i)+","+str(j)+")\n\n"
 
 posizioni = []
 p = ""
@@ -64,7 +58,6 @@ for i in range(3):
     for j in range(3):
         posizioni.append("r_1,("+str(i)+","+str(j)+")")
 
-print(posizioni)
 combi_posizioni = ""
 for i in range(len(posizioni)):
     j=i+1
@@ -106,4 +99,18 @@ for i in range(3):
     for j in range(3):
         pos += "innaffia_1,("+str(i)+","+str(j)+") " 
 
-print(pos+"\n")
+pos = ""
+
+for i in range(3):
+    for j in range(3):
+        pos += "p_1,("+str(i)+","+str(j)+") " 
+        pos += "-p_0,("+str(i)+","+str(j)+") "
+        pos += "estirpa_0,("+str(i)+","+str(j)+")\n"
+
+pos = ""
+
+for i in range(3):
+    for j in range(3):
+        pos += "p_0,("+str(i)+","+str(j)+") " 
+        pos += "-p_1,("+str(i)+","+str(j)+")\n"
+

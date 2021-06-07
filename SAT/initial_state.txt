@@ -1,4 +1,4 @@
-12
+11
 
 r_0,(0,2)
 -r_0,(0,0)
@@ -21,17 +21,17 @@ p_0,(2,2)
 -p_0,(2,1)
 
 -infestante_(0,0)
--infestante_(2,2)
+-infestante_(0,1)
+-infestante_(0,2)
+-infestante_(1,0)
 infestante_(1,1)
-infestante_(2,0)
+-infestante_(1,2)
+-infestante_(2,0)
+-infestante_(2,1)
+infestante_(2,2)
 
 -innaffiata_0,(0,0)
 -innaffiata_0,(1,1)
 -innaffiata_0,(2,0)
 -innaffiata_0,(2,2)
--innaffiata_0,(0,0)
--innaffiata_0,(1,1)
--innaffiata_0,(2,0)
--innaffiata_0,(2,2)
--innaffiata_0,(0,0)
 
