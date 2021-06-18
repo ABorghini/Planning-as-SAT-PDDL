@@ -242,8 +242,8 @@ def initial_state_generator(mosse, dim_x, dim_y, robot_x, robot_y, piante, infes
 
 
 def print_problem(dim, robot, piante, infestanti):
-    robot_x = int(p_robot[0])
-    robot_y = int(p_robot[1])
+    robot_x = int(robot[0])
+    robot_y = int(robot[1])
     dim_x = int(dim[0])
     dim_y = int(dim[1])
     problema = ""
