@@ -3,7 +3,7 @@
 
 ## Introduzione
 L'obiettivo del progetto è quello di risolvere un problema in logica proposizionale usando SAT. 
-In particolare ho ideato un problema di planning -- l'area dell'intelligenza artificiale che ha come scopo quello di pianificare una sequenza di azioni per permettere ad un agente di raggiungere uno stato finale dato -- in cui un robot giardiniere deve prendersi cura di un giardino. L’ambiente considerato, riportato in Figura, è un grid-world di dimensioni 3×3 rappresentante il giardino. 
+In particolare ho ideato un problema di planning – l'area dell'intelligenza artificiale che ha come scopo quello di pianificare una sequenza di azioni per permettere ad un agente di raggiungere uno stato finale dato – in cui un robot giardiniere deve prendersi cura di un giardino. L’ambiente considerato, riportato in Figura, è un grid-world di dimensioni 3×3 rappresentante il giardino. 
 
 ![](./images/progetto_12.png)
 
@@ -21,7 +21,7 @@ Il piano risultante viene salvato nel file "report.txt".
 
 
 ## PDDL
-Gli script PDDL sono presente nella cartella PDDL. Per provare i file è sufficiente importare i file "domain.pddl" e "problem.pddl" nelle apposite sezioni del solver online al link https://web-planner.herokuapp.com/, che risolverà il problema restituendo il percorso trovato.
+Gli script PDDL sono presenti nella cartella PDDL. Per provare i file è sufficiente importare i file "domain.pddl" e "problem.pddl" nelle apposite sezioni del solver online al link https://web-planner.herokuapp.com/, che risolverà il problema restituendo il percorso trovato.
 
 <br><br>
 
