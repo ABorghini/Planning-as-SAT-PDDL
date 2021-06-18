@@ -114,14 +114,95 @@ def at_least_one_action(azioni):
         s += a + " "
 
     with open("actions_and_constraints.txt", "a") as f:
+        f.write(s + "\n\n")
+
+    return
+
+
+def one_position_robot_x_time(posizioni):
+    s = ""
+    for i in range(len(posizioni)):
+        j = i + 1
+        while j < len(posizioni):
+            s += "-" + posizioni[i] + " -" + posizioni[j] + "\n"
+            j += 1
+
+    with open("actions_and_constraints.txt", "a") as f:
         f.write(s + "\n")
 
     return
 
 
-def constraints_generator(initial_state, azioni):
+def at_least_one_position_robot(celle):
+    s = ""
+    pos = []
+    for c in celle:
+        s += "r_1,(" + str(c[0]) + "," + str(c[1]) + ") "
+        pos.append("r_1,(" + str(c[0]) + "," + str(c[1]) + ")")
+
+    with open("actions_and_constraints.txt", "a") as f:
+        f.write(s + "\n\n")
+
+    return pos
+
+
+def robot_position_constraint(posizioni, azioni):
+    s = ""
+    for elem in posizioni:
+        s += "-" + elem + " "
+        for a in azioni:
+            if elem[-5:] in a:
+                s += a + " "
+        s += "\n"
+
+    print(s)
+
+    with open("actions_and_constraints.txt", "a") as f:
+        f.write(s + "\n")
+
+    return
+
+
+def plant_position_constraint(azioni):
+    s = ""
+    for a in azioni:
+        if "estirpa" in a:
+            s += "p_1," + a[-5:] + " "
+            s += "-p_0," + a[-5:] + " "
+            s += a + "\n"
+    print(s)
+
+    with open("actions_and_constraints.txt", "a") as f:
+        f.write(s + "\n")
+
+    return
+
+
+def innaffiata_constraint(azioni):
+    s = ""
+    for a in azioni:
+        if "innaffia" in a:
+            s += "-innaffiata_1," + a[-5:] + " "
+            s += a + " "
+            s += "innaffiata_0," + a[-5:] + "\n"
+
+    print(s)
+
+    with open("actions_and_constraints.txt", "a") as f:
+        f.write(s + "\n")
+
+    return
+
+
+def constraints_generator(initial_state, azioni, celle):
     one_action_x_time(azioni)
     at_least_one_action(azioni)
+    posizioni = at_least_one_position_robot(celle)
+    one_position_robot_x_time(posizioni)
+
+    robot_position_constraint(posizioni, azioni)
+    plant_position_constraint(azioni)
+    innaffiata_constraint(azioni)
 
 
 def initial_state_generator(mosse, dim_x, dim_y, robot_x, robot_y, piante, infestanti):
@@ -247,4 +328,4 @@ if __name__ == "__main__":
 
     azioni = actions_generator(celle, dim_x, dim_y, p_piante)
 
-    constraints_generator(initial_state_file, azioni)
+    constraints_generator(initial_state_file, azioni, celle)
