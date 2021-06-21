@@ -1,7 +1,101 @@
 from pysat.solvers import *
 import numpy as np
 import re
-from generator import print_problem
+
+
+def print_step(dim, robot, piante, innaffiate, infestanti, mosse):
+    robot_x = int(robot[0])
+    robot_y = int(robot[1])
+    dim_x = int(dim[0])
+    dim_y = int(dim[1])
+    problema = ""
+
+    print(mosse)
+    for i in range(dim_x):
+        for j in range(dim_y):
+            in_cella = ""
+            if i == robot_x and j == robot_y:
+                in_cella += "R"
+            if [i, j] in piante:
+                if [i, j] in infestanti:
+                    if in_cella != "":
+                        in_cella += "+I"
+                    else:
+                        in_cella += "I"
+                else:
+                    if [i, j] in innaffiate:
+                        if in_cella != "":
+                            in_cella += "+S'"
+                        else:
+                            in_cella += "S'"
+                    else:
+                        if in_cella != "":
+                            in_cella += "+S"
+                        else:
+                            in_cella += "S"
+            if in_cella == "":
+                in_cella += "-"
+            problema += in_cella + " "
+        problema += "\n"
+
+    print(problema)
+
+
+def print_problem(modello_list):
+    modello_by_steps = {}
+    infestante = []
+    pattern = "_[0-9]+"
+
+    for l in modello_list:
+        r = re.findall(pattern, l)
+        if r:
+            idx = r[0][1:]
+            if idx not in modello_by_steps:
+                modello_by_steps[idx] = []
+            modello_by_steps[idx].append(l)
+        if re.findall("^infestante_\([0-9]+,[0-9]+\)", l):
+
+            e = re.findall("[0-9]+,[0-9]+", l)[0].strip().split(",")
+            infestante.append([int(e[0]), int(e[1])])
+
+    robot = {}
+    piante = {}
+    innaffiate = {}
+    mosse = {}
+
+    for i in range(len(modello_by_steps)):
+        piante[str(i)] = []
+        robot[str(i)] = []
+        innaffiate[str(i)] = []
+        mosse[str(i)] = []
+        for elem in modello_by_steps[str(i)]:
+            if re.findall("^r_([0-9]+),\([0-9]+,[0-9]+\)", elem):
+                e = re.findall("[0-9]+,[0-9]+", elem)[0].strip().split(",")
+                robot[str(i)] = [int(e[0]), int(e[1])]
+            if re.findall("^p_([0-9]+),\([0-9]+,[0-9]+\)", elem):
+                e = re.findall("[0-9]+,[0-9]+", elem)[0].strip().split(",")
+                piante[str(i)].append([int(e[0]), int(e[1])])
+            if re.findall("^innaffiata_([0-9]+),\([0-9]+,[0-9]+\)", elem):
+                e = re.findall("[0-9]+,[0-9]+", elem)[0].strip().split(",")
+                innaffiate[str(i)].append([int(e[0]), int(e[1])])
+            if (
+                re.findall("^innaffia_", elem)
+                or re.findall("^estirpa", elem)
+                or re.findall("^moveto", elem)
+            ):
+                mosse[str(i)] = elem
+
+    for i in range(len(robot)):
+        print("Passo " + str(i) + "\n")
+        print_step(
+            [3, 3],
+            robot[str(i)],
+            piante[str(i)],
+            innaffiate[str(i)],
+            infestante,
+            mosse[str(i)],
+        )
+    return
 
 
 def solve():
@@ -76,41 +170,7 @@ def solve():
                     modello_txt += literal + "\n"
                     modello_list.append(literal)
 
-            # report.write("MODEL:\n" + modello_txt)
-
-            modello_by_steps = {}
-            infestante = []
-            pattern = "_[0-9]+"
-
-            for l in modello_list:
-                r = re.findall(pattern, l)
-                if r:
-                    idx = r[0][1:]
-                    if idx not in modello_by_steps:
-                        modello_by_steps[idx] = []
-                    modello_by_steps[idx].append(l)
-                if "infestante" in l:
-                    infestante.append(l)
-
-            # print(modello_by_steps)
-            print(infestante)
-            robot = {}
-            piante = {}
-
-            for i in range(len(modello_by_steps)):
-                piante[str(i)] = []
-                for elem in modello_by_steps[str(i)]:
-                    if re.findall("^r_([0-9]+),\([0-9]+,[0-9]+\)", elem):
-                        e = re.findall("[0-9]+,[0-9]+", elem)[0].strip().split(",")
-                        robot[str(i)] = [int(e[0]), int(e[1])]
-                    if re.findall("^p_([0-9]+),\([0-9]+,[0-9]+\)", elem):
-                        e = re.findall("[0-9]+,[0-9]+", elem)[0].strip().split(",")
-                        piante[str(i)].append([int(e[0]), int(e[1])])
-            print(robot)
-            print(piante)
-
-            for i in range(len(robot)):
-                print_problem([3, 3], robot[str(i)], piante[str(i)], infestante)
+            print_problem(modello_list)
 
         else:
             report.write("MODEL: -\n")
