@@ -1,6 +1,10 @@
 class Generator:
     def __init__(self, config_file):
+        # initial state file
+        self.__initial_state_file = "initial_state.txt"
+
         c = {}
+        # read config file
         with open(config_file, "r") as config:
             for line in config:
                 l = line.strip().split(" ")
@@ -9,6 +13,7 @@ class Generator:
                     if l[i] != "":
                         c[l[0]].append(l[i])
 
+        # take data from config file
         self.__mosse = int(c["mosse"][0].strip())
         if self.__mosse < 0:
             print("Il numero di mosse deve essere un intero positivo")
@@ -49,10 +54,21 @@ class Generator:
             for j in range(self.__dim_y):
                 self.__celle.append([i, j])
 
+    def generate(self):
+        # generate intial state
         self.initial_state_generator()
 
+        # generate actions based on initial state
         self.__azioni = self.actions_generator()
+
+        # generate constraints based on initial state
         self.constraints_generator()
+
+        # generate final state
+        self.final_state_generator()
+
+        # generate actions and constrints for each time (from 0 to self.__mosse)
+        self.moves_generator()
 
     def initial_state_generator(self):
         i_s = str(self.__mosse) + "\n\n"
@@ -89,7 +105,7 @@ class Generator:
                 ] in self.__p_piante:
                     i_s += "-innaffiata_0,(" + str(i) + "," + str(j) + ")\n"
 
-        with open("initial_state.txt", "w") as f:
+        with open(self.__initial_state_file, "w") as f:
             f.write(i_s)
 
     def adjacencies(self, cella_x, cella_y, x, y):
@@ -276,3 +292,57 @@ class Generator:
         self.robot_position_constraint(posizioni)
         self.plant_position_constraint()
         self.innaffiata_constraint()
+
+    def final_state_generator(self):
+        final_state = ""
+        for pos in self.__p_piante:
+            if pos in self.__p_infestanti:
+                final_state += (
+                    "-p_" + str(self.__mosse + 1) + ",(" + pos[0] + "," + pos[1] + ")\n"
+                )
+            else:
+                final_state += (
+                    "innaffiata_"
+                    + str(self.__mosse + 1)
+                    + ",("
+                    + pos[0]
+                    + ","
+                    + pos[1]
+                    + ")\n"
+                )
+
+        with open("final_state.txt", "w") as f:
+            f.write(final_state)
+
+        return
+
+    def moves_generator(self):
+        move = {}
+
+        with open("actions_and_constraints.txt", "r") as f:
+            move[0] = ""
+            for line in f:
+                if line != "\n":
+                    move[0] += line
+
+        for i in range(self.__mosse):
+            move[i + 1] = move[0].replace("move_to_0", "move_to_" + str(i + 1))
+            move[i + 1] = move[i + 1].replace("estirpa_0", "estirpa_" + str(i + 1))
+            move[i + 1] = move[i + 1].replace(
+                "innaffiata_1", "innaffiata_" + str(i + 2)
+            )
+            move[i + 1] = move[i + 1].replace(
+                "innaffiata_0", "innaffiata_" + str(i + 1)
+            )
+            move[i + 1] = move[i + 1].replace("innaffia_0", "innaffia_" + str(i + 1))
+            move[i + 1] = move[i + 1].replace("p_1", "p_" + str(i + 2))
+            move[i + 1] = move[i + 1].replace("p_0", "p_" + str(i + 1))
+            move[i + 1] = move[i + 1].replace("r_1", "r_" + str(i + 2))
+            move[i + 1] = move[i + 1].replace("r_0", "r_" + str(i + 1))
+
+        with open("moves.txt", "w") as f:
+            for k in move:
+                f.write(move[k] + "\n")
+
+    def return_moves(self):
+        return self.__mosse
