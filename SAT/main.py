@@ -1,9 +1,10 @@
 from generator import Generator
+import time
 
 if __name__ == "__main__":
+
     # generate all the clauses describing the problem
     generator = Generator("problem.config")
-    generator.generate()
-    mosse = generator.return_moves()
+    sat, model_dimacs = generator.solve()
 
-    # convert the clauses in DIMACS format
+    generator.print_problem()

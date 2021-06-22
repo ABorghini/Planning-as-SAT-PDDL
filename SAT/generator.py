@@ -1,3 +1,8 @@
+from pysat.solvers import Solver
+import re
+import time
+
+
 class Generator:
     def __init__(self, config_file):
         # initial state file
@@ -54,7 +59,8 @@ class Generator:
             for j in range(self.__dim_y):
                 self.__celle.append([i, j])
 
-    def generate(self):
+    def solve(self):
+        start = time.clock_gettime(time.CLOCK_MONOTONIC)
         # generate intial state
         self.initial_state_generator()
 
@@ -69,6 +75,125 @@ class Generator:
 
         # generate actions and constrints for each time (from 0 to self.__mosse)
         self.moves_generator()
+
+        # convert the problem in DIMACS CNF format
+        self.convert_to_dimacs()
+
+        # solve the problem
+        with open("problem_dimacs.txt", "r") as f:
+            l = []
+            for line in f:
+                line = [int(x) for x in line.strip().split(" ")]
+                l.append(line)
+
+        s = Solver(use_timer=True)
+        for elem in l:
+            s.add_clause(elem)
+
+        solution = s.solve()
+        end = time.clock_gettime(time.CLOCK_MONOTONIC)
+        print(end - start)
+        t = s.time()
+        print(t)
+        sat = "SATISFIABLE" if solution else "UNSATISFIABLE"
+        print("The problem is: " + sat)
+
+        if solution:
+            self.__model_dimacs = s.get_model()
+            self.__model = self.convert_from_dimacs()
+            return solution, self.__model
+        else:
+            return solution, []
+
+    def print_problem(self):
+        modello_by_steps = {}
+        infestante = []
+
+        for l in self.__model:
+            r = re.findall("_[0-9]+", l)
+            if r:
+                idx = r[0][1:]
+                if idx not in modello_by_steps:
+                    modello_by_steps[idx] = []
+                modello_by_steps[idx].append(l)
+            if re.findall("^infestante_\([0-9]+,[0-9]+\)", l):
+                e = re.findall("[0-9]+,[0-9]+", l)[0].strip().split(",")
+                infestante.append([int(e[0]), int(e[1])])
+
+        robot = {}
+        piante = {}
+        innaffiate = {}
+        mosse = {}
+
+        for i in range(len(modello_by_steps)):
+            piante[str(i)] = []
+            robot[str(i)] = []
+            innaffiate[str(i)] = []
+            mosse[str(i)] = []
+            for elem in modello_by_steps[str(i)]:
+                if re.findall("^r_([0-9]+),\([0-9]+,[0-9]+\)", elem):
+                    e = re.findall("[0-9]+,[0-9]+", elem)[0].strip().split(",")
+                    robot[str(i)] = [int(e[0]), int(e[1])]
+                if re.findall("^p_([0-9]+),\([0-9]+,[0-9]+\)", elem):
+                    e = re.findall("[0-9]+,[0-9]+", elem)[0].strip().split(",")
+                    piante[str(i)].append([int(e[0]), int(e[1])])
+                if re.findall("^innaffiata_([0-9]+),\([0-9]+,[0-9]+\)", elem):
+                    e = re.findall("[0-9]+,[0-9]+", elem)[0].strip().split(",")
+                    innaffiate[str(i)].append([int(e[0]), int(e[1])])
+                if (
+                    re.findall("^innaffia_", elem)
+                    or re.findall("^estirpa", elem)
+                    or re.findall("^move_to", elem)
+                ):
+                    mosse[str(i)] = elem
+
+        for i in range(len(robot)):
+            print("Passo " + str(i))
+            self.print_step(
+                robot[str(i)],
+                piante[str(i)],
+                innaffiate[str(i)],
+                infestante,
+                mosse[str(i)],
+            )
+        return
+
+    def print_step(self, robot, piante, innaffiate, infestanti, mosse):
+        robot_x = int(robot[0])
+        robot_y = int(robot[1])
+        dim_x = self.__dim_x
+        dim_y = self.__dim_y
+        problema = ""
+
+        print(mosse + "\n" if mosse != [] else "-\n")
+        for i in range(dim_x):
+            for j in range(dim_y):
+                in_cella = ""
+                if i == robot_x and j == robot_y:
+                    in_cella += "R"
+                if [i, j] in piante:
+                    if [i, j] in infestanti:
+                        if in_cella != "":
+                            in_cella += "+I"
+                        else:
+                            in_cella += "I"
+                    else:
+                        if [i, j] in innaffiate:
+                            if in_cella != "":
+                                in_cella += "+S'"
+                            else:
+                                in_cella += "S'"
+                        else:
+                            if in_cella != "":
+                                in_cella += "+S"
+                            else:
+                                in_cella += "S"
+                if in_cella == "":
+                    in_cella += "-"
+                problema += in_cella + " "
+            problema += "\n"
+
+        print(problema)
 
     def initial_state_generator(self):
         i_s = str(self.__mosse) + "\n\n"
@@ -346,3 +471,61 @@ class Generator:
 
     def return_moves(self):
         return self.__mosse
+
+    def create_dictionary(self, f):
+        d = {}
+        l = re.findall("[0-9]+", f)
+        i = 1
+
+        for elem in l:
+            if elem not in d.values():
+                d[i] = elem
+                i += 1
+
+        return d
+
+    def convert_to_dimacs(self):
+        file = ""
+        literals = []
+        with open("problem.txt", "r") as f:
+            for line in f:
+                if line != "\n":
+                    file += line
+                    literals.extend(
+                        re.findall(
+                            "[a-z]+_\([0-9]+,[0-9]+\)|[a-z]*_?[a-z]+_[0-9]+,\([0-9]+,[0-9]+\)",
+                            line,
+                        )
+                    )
+
+        dimacs_dict = {}
+
+        i = 1
+        # create
+        for l in literals:
+            if l not in dimacs_dict.values():
+                dimacs_dict[str(i)] = l
+                i += 1
+
+        self.__dimacs_dict = dimacs_dict
+        # self.__to_dimacs_dict = {lit: i for i, lit in self.__from_dimacs_dict.items()}
+
+        for literal in dimacs_dict:
+            file = file.replace(dimacs_dict[literal], literal)
+
+        with open("problem_dimacs.txt", "w") as f:
+            f.write(file)
+
+    def convert_from_dimacs(self):
+        model = []
+        dimacs_dict = self.__dimacs_dict
+        model_dimacs = self.__model_dimacs
+
+        for elem in model_dimacs:
+            e = str(elem)
+            if e[0] == "-":
+                model.append(e.replace(e[1:], dimacs_dict[e[1:]]))
+            else:
+                model.append(e.replace(e, dimacs_dict[e]))
+
+        return model

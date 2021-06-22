@@ -2,7 +2,7 @@ def convert_to_dimacs():
     file = ""
     with open("problem.txt", "r") as f:
         for line in f:
-            if line!="\n":
+            if line != "\n":
                 file += line
 
     file = file.replace("(", "")
@@ -19,5 +19,3 @@ def convert_to_dimacs():
 
     with open("problem_dimacs.txt", "w") as f:
         f.write(file)
-        
-
