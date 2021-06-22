@@ -41,23 +41,28 @@ class Generator:
         )
         self.__robot_x = int(p_robot[0])
         self.__robot_y = int(p_robot[1])
+        print(p_robot)
 
         self.__p_piante = []
         for elem in c["posizione_piante"]:
             self.__p_piante.append(
                 elem.replace("(", "").replace(")", "").strip().split(",")
             )
+        print(self.__p_piante)
 
         self.__p_infestanti = []
         for elem in c["posizione_piante_infestanti"]:
             self.__p_infestanti.append(
                 elem.replace("(", "").replace(")", "").strip().split(",")
             )
+        print(self.__p_infestanti)
 
         self.__celle = []
         for i in range(self.__dim_x):
             for j in range(self.__dim_y):
                 self.__celle.append([i, j])
+
+        print(self.__celle)
 
     def solve(self):
         start = time.clock_gettime(time.CLOCK_MONOTONIC)
@@ -103,7 +108,8 @@ class Generator:
             self.__model = self.convert_from_dimacs()
             return solution, self.__model
         else:
-            return solution, []
+            self.__model = []
+            return solution, self.__model
 
     def print_problem(self):
         modello_by_steps = {}
@@ -487,7 +493,28 @@ class Generator:
     def convert_to_dimacs(self):
         file = ""
         literals = []
-        with open("problem.txt", "r") as f:
+        with open("initial_state.txt", "r") as f:
+            f.readline()
+            for line in f:
+                if line != "\n":
+                    file += line
+                    literals.extend(
+                        re.findall(
+                            "[a-z]+_\([0-9]+,[0-9]+\)|[a-z]*_?[a-z]+_[0-9]+,\([0-9]+,[0-9]+\)",
+                            line,
+                        )
+                    )
+        with open("moves.txt", "r") as f:
+            for line in f:
+                if line != "\n":
+                    file += line
+                    literals.extend(
+                        re.findall(
+                            "[a-z]+_\([0-9]+,[0-9]+\)|[a-z]*_?[a-z]+_[0-9]+,\([0-9]+,[0-9]+\)",
+                            line,
+                        )
+                    )
+        with open("final_state.txt", "r") as f:
             for line in f:
                 if line != "\n":
                     file += line
@@ -508,6 +535,8 @@ class Generator:
                 i += 1
 
         self.__dimacs_dict = dimacs_dict
+        print(len(dimacs_dict))
+        print(dimacs_dict)
         # self.__to_dimacs_dict = {lit: i for i, lit in self.__from_dimacs_dict.items()}
 
         for literal in dimacs_dict:
