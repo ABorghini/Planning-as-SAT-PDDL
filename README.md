@@ -12,12 +12,15 @@ Nello  specifico,  ogni casella può essere: i) vuota, ii) sana (i.e., contenent
 2. quando si trova in una cella infestata può estirpare le piante presenti.
 
 L’obiettivo dell’agente è dunque quello di trovare un percorso che gli permetta di i) estirpare tutte le piante infestanti e, ii) innaffiare tutte quelle sane.
-Per ulteriori dettagli vedere il file "Planning_as_SAT.pdf".
 
 ## SAT
 Nella cartella SAT sono presenti i file necessari per risolvere il problema come SAT.
 Per poter eseguire il file "solve.py", che trova il piano risolutivo, è necessario installare il Solver PySAT, che è disponibile al link https://github.com/pysathq/pysat.
-Il piano risultante viene salvato nel file "report.txt".
+\'E possibile modificare il file "problem.config" per risolvere configurazioni differenti del problema (i.e., modificando la dimensione dell'ambiente o il numero di piante presenti)
+Il piano risultante viene salvato successivamente nel file "report.txt".
+Per eseguire il risolutore bisogna scaricare tale repository, aprire la cartella "SAT" nel terminale e lanciare il seguente comando:
+
+  python3 main.py
 
 
 ## PDDL
