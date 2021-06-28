@@ -1,2 +1,104 @@
-RESULT: SAT
-EXEC-TIME: 0.004920487000000015
+Istante 0
+
+S - S 
+- I - 
+R - I 
+
+move_to_0,(1,0)
+
+Istante 1
+
+S - S 
+R I - 
+- - I 
+
+move_to_1,(0,0)
+
+Istante 2
+
+R+S - S 
+- I - 
+- - I 
+
+innaffia_2,(0,0)
+
+Istante 3
+
+R+S' - S 
+- I - 
+- - I 
+
+move_to_3,(0,1)
+
+Istante 4
+
+S' R S 
+- I - 
+- - I 
+
+move_to_4,(0,2)
+
+Istante 5
+
+S' - R+S 
+- I - 
+- - I 
+
+innaffia_5,(0,2)
+
+Istante 6
+
+S' - R+S' 
+- I - 
+- - I 
+
+move_to_6,(1,2)
+
+Istante 7
+
+S' - S' 
+- I R 
+- - I 
+
+move_to_7,(2,2)
+
+Istante 8
+
+S' - S' 
+- I - 
+- - R+I 
+
+estirpa_8,(2,2)
+
+Istante 9
+
+S' - S' 
+- I - 
+- - R 
+
+move_to_9,(1,2)
+
+Istante 10
+
+S' - S' 
+- I R 
+- - - 
+
+move_to_10,(1,1)
+
+Istante 11
+
+S' - S' 
+- R+I - 
+- - - 
+
+estirpa_11,(1,1)
+
+Istante 12
+
+S' - S' 
+- R - 
+- - - 
+
+-
+

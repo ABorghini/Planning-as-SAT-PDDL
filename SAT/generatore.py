@@ -3,13 +3,36 @@ import re
 import time
 
 
-class Generator:
+class Generatore:
     def __init__(self, config_file):
         # initial state file
-        self.__initial_state_file = "initial_state.txt"
+        self.__initial_state_file = (
+            "initial_state.txt"  # it is just the name of the file that will be created
+        )
 
-        c = {}
         # read config file
+        (
+            max_mosse,
+            dim_x,
+            dim_y,
+            robot_x,
+            robot_y,
+            p_piante,
+            p_infestanti,
+            celle,
+        ) = self.read_config(config_file)
+
+        self.__max_mosse = max_mosse
+        self.__dim_x = dim_x
+        self.__dim_y = dim_y
+        self.__robot_x = robot_x
+        self.__robot_y = robot_y
+        self.__p_piante = p_piante
+        self.__p_infestanti = p_infestanti
+        self.__celle = celle
+
+    def read_config(self, config_file):
+        c = {}
         with open(config_file, "r") as config:
             for line in config:
                 l = line.strip().split(" ")
@@ -19,8 +42,8 @@ class Generator:
                         c[l[0]].append(l[i])
 
         # take data from config file
-        self.__mosse = int(c["mosse"][0].strip())
-        if self.__mosse < 0:
+        max_mosse = int(c["massimo_numero_mosse"][0].strip())
+        if max_mosse < 0:
             print("Il numero di mosse deve essere un intero positivo")
             return
 
@@ -29,8 +52,8 @@ class Generator:
             print("Dimensione della griglia in formato errato")
             return
 
-        self.__dim_x = int(dim[0])
-        self.__dim_y = int(dim[1])
+        dim_x = int(dim[0])
+        dim_y = int(dim[1])
 
         p_robot = (
             c["posizione_iniziale_robot"][0]
@@ -39,33 +62,29 @@ class Generator:
             .strip()
             .split(",")
         )
-        self.__robot_x = int(p_robot[0])
-        self.__robot_y = int(p_robot[1])
-        print(p_robot)
+        robot_x = int(p_robot[0])
+        robot_y = int(p_robot[1])
 
-        self.__p_piante = []
+        p_piante = []
         for elem in c["posizione_piante"]:
-            self.__p_piante.append(
-                elem.replace("(", "").replace(")", "").strip().split(",")
-            )
-        print(self.__p_piante)
+            p_piante.append(elem.replace("(", "").replace(")", "").strip().split(","))
 
-        self.__p_infestanti = []
+        p_infestanti = []
         for elem in c["posizione_piante_infestanti"]:
-            self.__p_infestanti.append(
+            p_infestanti.append(
                 elem.replace("(", "").replace(")", "").strip().split(",")
             )
-        print(self.__p_infestanti)
 
-        self.__celle = []
-        for i in range(self.__dim_x):
-            for j in range(self.__dim_y):
-                self.__celle.append([i, j])
+        celle = []
+        for i in range(dim_x):
+            for j in range(dim_y):
+                celle.append([i, j])
 
-        print(self.__celle)
+        return max_mosse, dim_x, dim_y, robot_x, robot_y, p_piante, p_infestanti, celle
 
     def solve(self):
         start = time.clock_gettime(time.CLOCK_MONOTONIC)
+
         # generate intial state
         self.initial_state_generator()
 
@@ -78,7 +97,7 @@ class Generator:
         # generate final state
         self.final_state_generator()
 
-        # generate actions and constrints for each time (from 0 to self.__mosse)
+        # generate actions and constraints for each time (from 0 to self.__max_mosse)
         self.moves_generator()
 
         # convert the problem in DIMACS CNF format
@@ -96,32 +115,33 @@ class Generator:
             s.add_clause(elem)
 
         solution = s.solve()
+
         end = time.clock_gettime(time.CLOCK_MONOTONIC)
+        print("Tempo di esecuzione: ")
         print(end - start)
-        t = s.time()
-        print(t)
-        sat = "SATISFIABLE" if solution else "UNSATISFIABLE"
-        print("The problem is: " + sat)
+
+        sat = "SODDISFACIBILE" if solution else "INSODDISFACIBILE"
+        print("Il problema è: " + sat + "\n")
 
         if solution:
             self.__model_dimacs = s.get_model()
             self.__model = self.convert_from_dimacs()
-            return solution, self.__model
         else:
             self.__model = []
-            return solution, self.__model
+
+        return solution, self.__model
 
     def print_problem(self):
-        modello_by_steps = {}
+        self.__modello_by_steps = {}
         infestante = []
 
         for l in self.__model:
             r = re.findall("_[0-9]+", l)
             if r:
                 idx = r[0][1:]
-                if idx not in modello_by_steps:
-                    modello_by_steps[idx] = []
-                modello_by_steps[idx].append(l)
+                if idx not in self.__modello_by_steps:
+                    self.__modello_by_steps[idx] = []
+                self.__modello_by_steps[idx].append(l)
             if re.findall("^infestante_\([0-9]+,[0-9]+\)", l):
                 e = re.findall("[0-9]+,[0-9]+", l)[0].strip().split(",")
                 infestante.append([int(e[0]), int(e[1])])
@@ -131,12 +151,12 @@ class Generator:
         innaffiate = {}
         mosse = {}
 
-        for i in range(len(modello_by_steps)):
+        for i in range(len(self.__modello_by_steps)):
             piante[str(i)] = []
             robot[str(i)] = []
             innaffiate[str(i)] = []
             mosse[str(i)] = []
-            for elem in modello_by_steps[str(i)]:
+            for elem in self.__modello_by_steps[str(i)]:
                 if re.findall("^r_([0-9]+),\([0-9]+,[0-9]+\)", elem):
                     e = re.findall("[0-9]+,[0-9]+", elem)[0].strip().split(",")
                     robot[str(i)] = [int(e[0]), int(e[1])]
@@ -153,15 +173,22 @@ class Generator:
                 ):
                     mosse[str(i)] = elem
 
+        s = ""
         for i in range(len(robot)):
-            print("Passo " + str(i))
-            self.print_step(
+            s += "Istante " + str(i) + "\n\n"
+            s += self.print_step(
                 robot[str(i)],
                 piante[str(i)],
                 innaffiate[str(i)],
                 infestante,
                 mosse[str(i)],
             )
+            s += "\n"
+        with open("report.txt", "w") as f:
+            f.write(s)
+
+        print(s)
+        print("Il report è stato generato")
         return
 
     def print_step(self, robot, piante, innaffiate, infestanti, mosse):
@@ -171,7 +198,6 @@ class Generator:
         dim_y = self.__dim_y
         problema = ""
 
-        print(mosse + "\n" if mosse != [] else "-\n")
         for i in range(dim_x):
             for j in range(dim_y):
                 in_cella = ""
@@ -199,10 +225,14 @@ class Generator:
                 problema += in_cella + " "
             problema += "\n"
 
-        print(problema)
+        problema += "\n" + mosse + "\n" if mosse != [] else "\n-\n"
+        return problema
+
+    def print_model_by_steps(self):
+        print(self.__modello_by_steps)
 
     def initial_state_generator(self):
-        i_s = str(self.__mosse) + "\n\n"
+        i_s = ""
 
         for i in range(self.__dim_x):
             for j in range(self.__dim_y):
@@ -429,12 +459,18 @@ class Generator:
         for pos in self.__p_piante:
             if pos in self.__p_infestanti:
                 final_state += (
-                    "-p_" + str(self.__mosse + 1) + ",(" + pos[0] + "," + pos[1] + ")\n"
+                    "-p_"
+                    + str(self.__max_mosse + 1)
+                    + ",("
+                    + pos[0]
+                    + ","
+                    + pos[1]
+                    + ")\n"
                 )
             else:
                 final_state += (
                     "innaffiata_"
-                    + str(self.__mosse + 1)
+                    + str(self.__max_mosse + 1)
                     + ",("
                     + pos[0]
                     + ","
@@ -456,7 +492,7 @@ class Generator:
                 if line != "\n":
                     move[0] += line
 
-        for i in range(self.__mosse):
+        for i in range(self.__max_mosse):
             move[i + 1] = move[0].replace("move_to_0", "move_to_" + str(i + 1))
             move[i + 1] = move[i + 1].replace("estirpa_0", "estirpa_" + str(i + 1))
             move[i + 1] = move[i + 1].replace(
@@ -476,25 +512,12 @@ class Generator:
                 f.write(move[k] + "\n")
 
     def return_moves(self):
-        return self.__mosse
+        return self.__max_mosse
 
-    def create_dictionary(self, f):
-        d = {}
-        l = re.findall("[0-9]+", f)
-        i = 1
-
-        for elem in l:
-            if elem not in d.values():
-                d[i] = elem
-                i += 1
-
-        return d
-
-    def convert_to_dimacs(self):
+    def create_dictionary(self):
         file = ""
         literals = []
-        with open("initial_state.txt", "r") as f:
-            f.readline()
+        with open(self.__initial_state_file, "r") as f:
             for line in f:
                 if line != "\n":
                     file += line
@@ -534,13 +557,13 @@ class Generator:
                 dimacs_dict[str(i)] = l
                 i += 1
 
-        self.__dimacs_dict = dimacs_dict
-        print(len(dimacs_dict))
-        print(dimacs_dict)
-        # self.__to_dimacs_dict = {lit: i for i, lit in self.__from_dimacs_dict.items()}
+        return dimacs_dict, file
 
-        for literal in dimacs_dict:
-            file = file.replace(dimacs_dict[literal], literal)
+    def convert_to_dimacs(self):
+        self.__dimacs_dict, file = self.create_dictionary()
+
+        for literal in self.__dimacs_dict:
+            file = file.replace(self.__dimacs_dict[literal], literal)
 
         with open("problem_dimacs.txt", "w") as f:
             f.write(file)
